@@ -1,0 +1,21 @@
+Package: ashnet
+Type: Package
+Title: Network Learning using adaptive shrinkage
+Version: 0.99.0
+Authors@R: c(
+    person("Kushal", "Dey", email = "kkdey@uchicago.edu", role = c("aut","cre")),
+    person("Matthew", "Stephens", email = "stephens999@gmail.com", role ="aut"))
+Maintainer: Kushal Dey <kkdey@uchicago.edu>
+Description: Constructs network using adaptive shrinkage on correlation/ covariance matrix
+License: GPL (>= 2)
+URL: https://github.com/kkdey/topotpx-ghpages
+License: GPL (>= 2)
+LazyData: true
+Encoding: UTF-8
+Depends:
+    R (>= 3.3.0)
+Imports: network, ashr, reshape, reshape2, Matrix
+Suggests:
+      knitr,clusterGeneration, mvtnorm, BiocStyle, Biobase, roxygen2, RColorBrewer, devtools, xtable
+VignetteBuilder: knitr
+RoxygenNote: 5.0.1
