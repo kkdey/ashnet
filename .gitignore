@@ -1,3 +1,5 @@
 packrat/lib*/
 .Rproj.user
 packrat/*
+.DS_Store
+.Rhistory

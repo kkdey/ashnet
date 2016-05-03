@@ -14,7 +14,7 @@
 
 ash_cor <- function(cormat, nsamples, image=FALSE)
 {
-  cor_table <- melt(cormat);
+  cor_table <- reshape2::melt(cormat);
   cor_table_non_diag <- cor_table[which(cor_table[,1] !=cor_table[,2]),];
 
   cor_table_non_diag.val <- cor_table_non_diag[,3];
@@ -29,10 +29,10 @@ ash_cor <- function(cormat, nsamples, image=FALSE)
 
   newdata.table <- cor_table_non_diag;
   newdata.table[,3] <- ash_cor_vec;
-  new_mat <- reshape2::dcast(newdata.table, X1~X2, value.var = "value")[,-1];
+  new_mat <- reshape2::dcast(newdata.table, Var1~Var2, value.var = "value")[,-1];
   new_mat[is.na(new_mat)]=1;
   pd_completion <- Matrix::nearPD(as.matrix(new_mat), conv.tol=1e-06);
-  new_mat <- sweep(pd_completion$mat,diag(pd_completion$mat), MARGIN=1,"/")
+  new_mat <- sweep(pd_completion$mat,diag(as.matrix(pd_completion$mat)), MARGIN=1,"/")
   if(image) {
     image(cormat)
     image(new_mat)
