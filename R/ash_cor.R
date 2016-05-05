@@ -5,14 +5,14 @@
 #' @param cormat The estimated sample correlation matrix
 #' @param nsamples The number of samples over which the correlation matrix is estimated.
 #' @param image if TRUE, plots an image of the shrunk and non-shrunk correlation matrices
-#'
+#' @param tol The tolerance to check the difference between ash-cor only and ash-cor PD matrices.
 #' @return Returns a shrunk version of the sample correlation matrix (the output is also a correlation matrix)
 #'
 #' @keywords adaptive shrinkage, correlation
 #' @export
 
 
-ash_cor <- function(cormat, nsamples, image=FALSE)
+ash_cor <- function(cormat, nsamples, image=FALSE, tol=1e-06)
 {
   cor_table <- reshape2::melt(cormat);
   cor_table_non_diag <- cor_table[which(cor_table[,1] !=cor_table[,2]),];
@@ -29,14 +29,20 @@ ash_cor <- function(cormat, nsamples, image=FALSE)
 
   newdata.table <- cor_table_non_diag;
   newdata.table[,3] <- ash_cor_vec;
-  new_mat <- reshape2::dcast(newdata.table, Var1~Var2, value.var = "value")[,-1];
-  new_mat[is.na(new_mat)]=1;
-  pd_completion <- Matrix::nearPD(as.matrix(new_mat), conv.tol=1e-06);
-  new_mat <- sweep(pd_completion$mat,diag(as.matrix(pd_completion$mat)), MARGIN=1,"/")
+  ash_cor_only <- reshape2::dcast(newdata.table, Var1~Var2, value.var = "value")[,-1];
+  ash_cor_only[is.na(ash_cor_only)]=1;
+  pd_completion <- Matrix::nearPD(as.matrix(ash_cor_only), conv.tol=1e-06);
+  ash_cor_PD <- sweep(pd_completion$mat,diag(as.matrix(pd_completion$mat)), MARGIN=1,"/")
   if(image) {
     image(cormat)
-    image(new_mat)
+    image(new_mat_2)
   }
-  return(new_mat)
+  if(all.equal(target=ash_cor_only, current=ash_cor_PD, tolerance=tol)==TRUE){
+    cat("ash cor only and ash cor PD matrices are same")
+  }else{
+    cat("ash cor only and ash cor PD matrices are different")
+  }
+  ll <- list("ash_cor_only"= ash_cor_only, "ash_cor_PD"=ash_cor_PD)
+  return(ll)
 }
 

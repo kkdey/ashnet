@@ -1,5 +1,5 @@
-dim <- 1000
-nsamples <- 50
+dim <- 400
+nsamples <- 10
 pop_cov <- ashnet::generate_cov(dim);
 plot(sort(pop_cov$eigen, decreasing = TRUE), type="l")
 plot(sort(pop_cov$eigen, decreasing = TRUE), type="l")
@@ -8,7 +8,11 @@ generate_sample <- mvtnorm::rmvnorm(nsamples, rep(0, dim), pop_cov$Sigma);
 cov_sample <- cov(generate_sample)
 eigen_sample <- eigen(cov_sample, only.values = TRUE)
 plot(sort(as.numeric(eigen_sample$values), decreasing = TRUE), type="l")
-cor_sample <- cov2cor(cov_sample)
+cor_sample_PD <- Matrix::nearPD(cov2cor(cov_sample))$mat
+cov_sample_PD <- diag(sqrt(diag(cov_sample)))%*%cor_sample_PD%*%diag(sqrt(diag(cov_sample)))
+eigen_sample_PD <- eigen(cov_sample_PD, only.values = TRUE)
+plot(sort(as.numeric(eigen_sample_PD$values), decreasing = TRUE), type="l")
+
 # image(nearPD(as.matrix(cor_sample), conv.tol = 1e-06)$mat)
 
 shafer_mat <- ashnet::shafer_strimmer_shrinker(generate_sample);
@@ -18,7 +22,7 @@ plot(sort(pop_cov$eigen, decreasing = TRUE), type="l", col="black")
 lines(sort(as.numeric(shafer_eigen$values), decreasing = TRUE), type="l", col="blue")
 lines(sort(as.numeric(eigen_sample$values), decreasing = TRUE), type="l", col="green")
 
-ash_cor_sample <- ashnet::ash_cor(cor_sample, nsamples);
+ash_cor_sample <- ashnet::ash_cor(as.matrix(cor_sample_PD), nsamples);
 #ash_cor_sample[abs(ash_cor_sample)  < 0.0001] <- 0
 #image(nearPD(as.matrix(ash_cor_sample), conv.tol = 1e-06)$mat)
 
@@ -35,7 +39,7 @@ ash_cor_sample <- ashnet::ash_cor(cor_sample, nsamples);
 #}
 
 
-ash_cov_sample <- diag(sqrt(diag(cov_sample)))%*%ash_cor_sample%*%diag(sqrt(diag(cov_sample)))
+ash_cov_sample <- diag(sqrt(diag(cov_sample)))%*%as.matrix(ash_cor_sample$ash_cor_PD)%*%diag(sqrt(diag(cov_sample)))
 eigen_ash_sample <- eigen(ash_cov_sample, only.values = TRUE)
 plot(sort(as.numeric(eigen_ash_sample$values), decreasing = TRUE), type="l", col="red")
 lines(sort(as.numeric(eigen_sample$values), decreasing = TRUE), type="l", col="green")
