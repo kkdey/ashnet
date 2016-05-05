@@ -39,8 +39,8 @@ ash_cor_sample <- ashnet::ash_cor(as.matrix(cor_sample_PD), nsamples);
 #}
 
 
-ash_cov_sample <- diag(sqrt(diag(cov_sample)))%*%as.matrix(ash_cor_sample$ash_cor_PD)%*%diag(sqrt(diag(cov_sample)))
-eigen_ash_sample <- eigen(ash_cov_sample, only.values = TRUE)
+ash_cov_sample_PD <- diag(sqrt(diag(cov_sample)))%*%as.matrix(ash_cor_sample$ash_cor_PD)%*%diag(sqrt(diag(cov_sample)))
+eigen_ash_sample <- eigen(ash_cov_sample_PD, only.values = TRUE)
 plot(sort(as.numeric(eigen_ash_sample$values), decreasing = TRUE), type="l", col="red")
 lines(sort(as.numeric(eigen_sample$values), decreasing = TRUE), type="l", col="green")
 lines(sort(as.numeric(shafer_eigen$values), decreasing = TRUE), type="l", col="blue")
@@ -89,7 +89,8 @@ ggplot(eigendata, aes(eigenorder)) +
   theme(plot.title = element_text(lineheight=.8, face="bold"))
 
 
-
+shapes::distcov(as.matrix(ash_cov_sample), as.matrix(pop_cov$Sigma), method="Procrustes", alpha=0.5)
+shapes::distcov(as.matrix(shafer_mat$mat), as.matrix(pop_cov$Sigma), method="Procrustes", alpha=0.5)
 
 # plot(sort(log(as.numeric(eigen_ash_cov_master$values)+1),
 #           decreasing = TRUE),
@@ -102,3 +103,5 @@ ggplot(eigendata, aes(eigenorder)) +
 #       type="l", col="green")
 # lines(sort(log(as.numeric(eigen_ash_sample$values)+1), decreasing = TRUE),
 #       type="l", col="blue")
+
+install.packages("shape")
