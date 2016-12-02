@@ -24,7 +24,7 @@ ash_cor <- function(cormat, nsamples, image=FALSE, tol=1e-06)
   cor_transform_mean_vec=0.5*log((1+cor_table_non_diag.val)/(1-cor_table_non_diag.val))
   cor_transform_sd_vec=rep(sqrt(1/(nsamples-3)), dim(cor_table_non_diag)[1]);
   options(warn=-1)
-  fit=ashr::ash(cor_transform_mean_vec,cor_transform_sd_vec,mixcompdist="normal");
+  fit=ashr::ash(cor_transform_mean_vec,cor_transform_sd_vec,mixcompdist="normal", optmethod="mixVBEM");
   ash_cor_vec=(exp(2*fit$PosteriorMean)-1)/(exp(2*fit$PosteriorMean)+1);
 
   newdata.table <- cor_table_non_diag;

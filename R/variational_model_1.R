@@ -15,6 +15,8 @@ nsamples = 50;
 cor_table <- reshape2::melt(corSigma);
 cor_table_non_diag <- cor_table[which(cor_table[,1] !=cor_table[,2]),];
 
+cor <- ash_cor (corSigma, nsamples = 500, tol=1e-06)
+
 
 ###################  correlation table   ###########################
 
@@ -171,3 +173,19 @@ control=list()
 pi.fit=estimate_mixprop(betahat[completeobs],sebetahat[completeobs],
                         g,prior,null.comp=null.comp,
                         optmethod="mixVBEM",df=df,control=control)
+
+postMean.fit <- postmean(pi.fit$g,betahat[completeobs],sebetahat[completeobs], v=NULL)
+
+ash_cor_vec=(exp(2*postMean.fit)-1)/(exp(2*postMean.fit)+1);
+
+newdata.table <- cor_table_non_diag;
+newdata.table[,3] <- ash_cor_vec;
+ash_cor_only <- reshape2::dcast(newdata.table, Var1~Var2, value.var = "value")[,-1];
+ash_cor_only[is.na(ash_cor_only)]=1;
+pd_completion <- Matrix::nearPD(as.matrix(ash_cor_only), conv.tol=1e-06);
+ash_cor_PD2 <- sweep(pd_completion$mat,diag(as.matrix(pd_completion$mat)), MARGIN=1,"/")
+
+image.plot(as.matrix(ash_cor_PD2), col=two.colors(n=256, start="darkgreen", end="red", middle="white",
+                                                 alpha=1.0))
+image.plot(as.matrix(corSigma), col=two.colors(n=256, start="darkgreen", end="red", middle="white",
+                                               alpha=1.0))

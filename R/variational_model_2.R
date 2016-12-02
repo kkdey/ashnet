@@ -32,7 +32,7 @@ estimate_mixprop_2 <- function(betahat, sebetahat, g, prior,
 
 mixVBEM2 = function(matrix_lik, prior, pi_init = NULL,
                     nu1_init = NULL, nu2_init = NULL,
-                    nullweight = 10, control=list()){
+                    nullweight = 100, control=list()){
   control.default=list(K = 1, method=3, square=TRUE, step.min0=1, step.max0=1, mstep=4, kr=1, objfn.inc=1,tol=1.e-07, maxiter=5000, trace=FALSE)
   namc=names(control)
   if (!all(namc %in% names(control.default)))
@@ -109,7 +109,7 @@ VBpenloglik2 = function(param_post, matrix_lik, prior){
 
   invgammaloglik = k*(nu1_post + 1)*log(nu2_post) - (nu1_post + 1) *k*digamma(nu1_post) - k * nu1_post
 
-  B= sum(classprob*log(classprob1),na.rm=TRUE) - diriKL(prior,pi_post) - sum(classprob*log(classprob)) - invgammaloglik
+  B= sum(classprob*log(classprob1),na.rm=TRUE) - diriKL(prior,pi_post) - sum(classprob*log(classprob)) + invgammaloglik
   return(B)
 }
 
