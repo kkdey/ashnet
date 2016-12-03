@@ -51,6 +51,7 @@ library(corpcor)
 strimmer_cor <- cor.shrink(t(dat))
 
 
+
 diags <- eigen(cor_sample)$values
 ash_cov_sample3 <- diag(sqrt(diags))%*%ash_cor_sample3%*%diag(sqrt(diags))
 ash_cov_sample2 <- diag(sqrt(diags))%*%ash_cor_sample2%*%diag(sqrt(diags))
@@ -58,11 +59,15 @@ ash_cov_sample <- diag(sqrt(diags))%*%ash_cor_sample%*%diag(sqrt(diags))
 cov_sample <- diag(sqrt(diags))%*%cor_sample%*%diag(sqrt(diags))
 strimmer_cov_sample <- diag(sqrt(diags))%*%strimmer_cor%*%diag(sqrt(diags))
 
+library(glasso)
+glasso_cov_sample <- glasso::glasso(cov_sample, rho = 0.7)
+
 eigen_ash_sample3 <- eigen(ash_cov_sample3, only.values = TRUE)
 eigen_ash_sample2 <- eigen(ash_cov_sample2, only.values = TRUE)
 eigen_ash_sample <- eigen(ash_cov_sample, only.values = TRUE)
 eigen_sample <- eigen(cov_sample, only.values = TRUE)
 eigen_strimmer_sample <- eigen(strimmer_cov_sample, only.values = TRUE)
+eigen_glasso_sample <- eigen(glasso_cov_sample$w, only.values = TRUE)
 
 library(ggplot2)
 
@@ -74,14 +79,17 @@ eigendata <- data.frame(
   ash_cov = sort(log(as.numeric(eigen_ash_sample$values)+1),  decreasing=TRUE)[1:dim],
   ash_cov2 = sort(log(as.numeric(eigen_ash_sample2$values)+1),  decreasing=TRUE)[1:dim],
   ash_cov3 = sort(log(as.numeric(eigen_ash_sample3$values)+1),  decreasing=TRUE)[1:dim],
-  strimmer_cov = sort(log(as.numeric(eigen_strimmer_sample$values)+1),  decreasing=TRUE)[1:dim])
+  strimmer_cov = sort(log(as.numeric(eigen_strimmer_sample$values)+1),  decreasing=TRUE)[1:dim],
+  glasso_cov = sort(log(as.numeric(eigen_glasso_sample$values)+1),  decreasing=TRUE)[1:dim]
+)
 
 colnames(eigendata) <- c("eigenorder",
                          "sample_cov",
                          "ash_cov",
                          "ash_cov2",
                          "ash_cov3",
-                         "strimmer_cov")
+                         "strimmer_cov",
+                         "glasso_cov")
 
 library(ggplot2)
 ggplot(eigendata, aes(eigenorder)) +
@@ -90,9 +98,10 @@ ggplot(eigendata, aes(eigenorder)) +
   geom_line(aes(y = ash_cov2, colour = "ash cov2"))+
   geom_line(aes(y = ash_cov3, colour = "ash cov 3"))+
   geom_line(aes(y = strimmer_cov, colour = "strimmer cov"))+
+  geom_line(aes(y = glasso_cov, colour = "glasso cov"))+
   xlab("Order of eigenvalues (sorted)")+
   ylab("log(Eigenvalues + 1)")+
-  scale_colour_manual(values=c("blue", "red", "green", "orange", "pink"))+
+  scale_colour_manual(values=c("blue", "red", "green", "orange", "pink", "brown"))+
   ggtitle(paste0("Eigenvalues distribution n/p=", round(dim(cor_sample)[1]/nsamples, 4),"\n for different shrinkage methods"))+
   theme(plot.title = element_text(lineheight=.8, face="bold"))
 
