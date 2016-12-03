@@ -68,3 +68,15 @@ ggplot(eigendata, aes(eigenorder)) +
   scale_colour_manual(values=c("blue", "grey", "red", "green", "orange"))+
   ggtitle(paste0("Eigenvalues distribution n/p=", round(nsamples/dim, 4),"\n for different shrinkage methods"))+
   theme(plot.title = element_text(lineheight=.8, face="bold"))
+
+
+#################  image plots for the correlation matrices  ##########################
+
+library(fields)
+set.seed(1)
+par(mfrow=c(2,2))
+cols = gray.colors(100)
+image.plot(cov2cor(pop_cov$Sigma), col=cols, nlevel=100)
+image.plot(as.matrix(ash_cor_sample), col=cols, nlevel=100)
+image.plot(as.matrix(ash_cor_sample2), col=cols, nlevel=100)
+image.plot(as.matrix(ash_cor_sample3), col=cols, nlevel=100)

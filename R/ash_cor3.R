@@ -120,7 +120,8 @@ mixVBEM2 = function(matrix_lik, betahat, sebetahat, prior, pi_init = NULL,
  # mixsd <- c(0, mixsd[1:(k-1)])
   null.comp = which.min(mixsd)
 
-  k=ncol(matrix_lik)
+  k = ncol(matrix_lik)
+  n = nrow(matrix_lik)
   if(is.null(pi_init)){  pi_init = rep(1,k)  }# Use as starting point for pi
   if(is.null(nu1_init)){ nu1_init = rep(0.001, k) }
   if(is.null(nu2_init)){ nu2_init = rep(0.001, k) }

@@ -187,6 +187,47 @@ estimate_mixprop = function(betahat,sebetahat,g,prior,optmethod=c("mixEM","mixVB
               matrix_lik=matrix_lik,converged=converged,g=g,niter=niter))
 }
 
+mixVBEM = function(matrix_lik, prior, pi_init = NULL,control=list()){
+  control.default=list(K = 1, method=3, square=TRUE, step.min0=1, step.max0=1, mstep=4, kr=1, objfn.inc=1,tol=1.e-07, maxiter=5000, trace=FALSE)
+  namc=names(control)
+  if (!all(namc %in% names(control.default)))
+    stop("unknown names in control: ", namc[!(namc %in% names(control.default))])
+  controlinput=modifyList(control.default, control)
+
+  k=ncol(matrix_lik)
+  if(is.null(pi_init)){  pi_init = rep(1,k)  }# Use as starting point for pi
+  res = SQUAREM::squarem(par=pi_init,fixptfn=VBfixpoint, objfn=VBnegpenloglik,matrix_lik=matrix_lik, prior=prior, control=controlinput)
+
+  return(list(pihat = res$par/sum(res$par), B=res$value.objfn, niter = res$iter, converged=res$convergence,post=res$par))
+}
+
+
+VBfixpoint = function(pipost, matrix_lik, prior){
+  n=nrow(matrix_lik)
+  k=ncol(matrix_lik)
+  avgpipost = matrix(exp(rep(digamma(pipost),n)-rep(digamma(sum(pipost)),k*n)),ncol=k,byrow=TRUE)
+  classprob = avgpipost*matrix_lik
+  classprob = classprob/rowSums(classprob) # n by k matrix
+  pipostnew = colSums(classprob) + prior
+  return(pipostnew)
+}
+
+VBnegpenloglik=function(pipost,matrix_lik,prior){
+  return(-VBpenloglik(pipost,matrix_lik,prior))
+}
+
+VBpenloglik = function(pipost, matrix_lik, prior){
+  n=nrow(matrix_lik)
+  k=ncol(matrix_lik)
+  avgpipost = matrix(exp(rep(digamma(pipost),n)-rep(digamma(sum(pipost)),k*n)),ncol=k,byrow=TRUE)
+  classprob = avgpipost*matrix_lik
+  classprob = classprob/rowSums(classprob) # n by k matrix
+
+  B= sum(classprob*log(avgpipost*matrix_lik),na.rm=TRUE) - diriKL(prior,pipost) - sum(classprob*log(classprob))
+  return(B)
+}
+
+
 
 ################################## GENERIC FUNCTIONS ############################
 
