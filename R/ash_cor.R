@@ -25,7 +25,7 @@ ash_cor <- function(cormat, nsamples, image=FALSE, tol=1e-06)
   cor_transform_sd_vec=rep(sqrt(1/(nsamples-3)), dim(cor_table_non_diag)[1]);
   options(warn=-1)
   fit=ashr::ash(cor_transform_mean_vec,cor_transform_sd_vec,mixcompdist="normal", optmethod="mixVBEM");
-  ash_cor_vec=(exp(2*fit$PosteriorMean)-1)/(exp(2*fit$PosteriorMean)+1);
+  ash_cor_vec=(exp(2*fit$result$PosteriorMean)-1)/(exp(2*fit$result$PosteriorMean)+1);
 
   newdata.table <- cor_table_non_diag;
   newdata.table[,3] <- ash_cor_vec;
@@ -35,7 +35,7 @@ ash_cor <- function(cormat, nsamples, image=FALSE, tol=1e-06)
   ash_cor_PD <- sweep(pd_completion$mat,diag(as.matrix(pd_completion$mat)), MARGIN=1,"/")
   if(image) {
     image(cormat)
-    image(new_mat_2)
+    image(as.matrix(ash_cor_only))
   }
   if(all.equal(target=ash_cor_only, current=ash_cor_PD, tolerance=tol)==TRUE){
     cat("ash cor only and ash cor PD matrices are same")
